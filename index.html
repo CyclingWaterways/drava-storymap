@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DravaBike - Cycling Through Nature</title>
+    
+    <!-- ArcGIS Maps SDK for JavaScript -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.28/"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        #header {
+            background: linear-gradient(135deg, #2C5F2D 0%, #4A7C59 100%);
+            color: white;
+            padding: 12px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        #header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        #header p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        /* Main container */
+        #main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Sidebar Navigator - LEFT */
+        #sidebar {
+            width: 200px;
+            background: #f8fafc;
+            border-right: 2px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 900;
+        }
+        
+        .sidebar-header {
+            padding: 12px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            text-align: center;
+        }
+        
+        #pointsList {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .point-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #475569;
+        }
+        
+        .point-item:hover {
+            background: white;
+            border-left-color: #94a3b8;
+        }
+        
+        .point-item.active {
+            background: white;
+            border-left-color: #475569;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        .point-number {
+            display: block;
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 2px;
+        }
+        
+        .point-item.active .point-number {
+            color: #475569;
+        }
+        
+        /* Navigation buttons */
+        .nav-buttons {
+            padding: 12px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 8px;
+            background: #64748b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background: #475569;
+        }
+        
+        .nav-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        /* Map container - CENTER */
+        #viewDiv {
+            flex: 1;
+            position: relative;
+        }
+        
+        /* Side panel - RIGHT (foto + descrizione) */
+        .side-panel {
+            width: 320px;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 950;
+            overflow-y: auto;
+        }
+        
+        .side-panel.visible {
+            display: flex;
+        }
+        
+        .panel-header {
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .type-1 { background: #dcfce7; color: #166534; }
+        .type-2 { background: #fef3c7; color: #854d0e; }
+        .type-3 { background: #dbeafe; color: #1e40af; }
+        
+        .panel-header h2 {
+            font-size: 20px;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+        
+        .close-button:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        
+        .panel-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
+        
+        .panel-content p {
+            color: #475569;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* Loading spinner */
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 24px 32px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #64748b;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar styling */
+        #pointsList::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #pointsList::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        #pointsList::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        #pointsList::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .side-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .side-panel::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        .side-panel::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        /* Mobile hamburger menu */
+        #menuToggle {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 12px;
+            z-index: 1001;
+            background: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            #sidebar {
+                position: fixed;
+                left: -200px;
+                top: 60px;
+                bottom: 0;
+                transition: left 0.3s;
+                box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+            }
+            
+            #sidebar.open {
+                left: 0;
+            }
+            
+            #menuToggle {
+                display: block;
+            }
+            
+            .side-panel {
+                width: 280px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #header h1 {
+                font-size: 18px;
+            }
+            
+            #header p {
+                font-size: 11px;
+            }
+            
+            .side-panel {
+                position: fixed;
+                right: -100%;
+                top: 60px;
+                bottom: 0;
+                width: 100%;
+                max-width: 320px;
+                transition: right 0.3s;
+            }
+            
+            .side-panel.visible {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header">
+        <h1>DravaBike - Cycling Through Nature</h1>
+        <p>Outdoor classroom along the Drava River</p>
+    </div>
+    
+    <!-- Mobile menu toggle -->
+    <button id="menuToggle" onclick="toggleSidebar()">☰</button>
+    
+    <!-- Main container -->
+    <div id="main-container">
+        <!-- Sidebar Navigator - LEFT -->
+        <div id="sidebar">
+            <div class="sidebar-header">
+                LEARNING POINTS
+            </div>
+            <div id="pointsList">
+                <!-- Points will be loaded here -->
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn" id="prevBtn" onclick="navigatePrevious()">← Prev</button>
+                <button class="nav-btn" id="nextBtn" onclick="navigateNext()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Map - CENTER -->
+        <div id="viewDiv">
+            <!-- Loading Spinner -->
+            <div id="loading">
+                <div class="spinner"></div>
+                <span>Loading map...</span>
+            </div>
+        </div>
+        
+        <!-- Side Panel - RIGHT (foto + descrizione) -->
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-header">
+                <span class="type-badge" id="typeBadge">Type</span>
+                <h2 id="locationName">Location Name</h2>
+                <button class="close-button" onclick="closePanel()">×</button>
+            </div>
+            <img id="locationImage" class="panel-image" src="" alt="Location">
+            <div class="panel-content">
+                <p id="locationDescription">Description</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        require([
+            "esri/WebMap",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/Legend",
+            "esri/widgets/ScaleBar",
+            "esri/widgets/Expand"
+        ], function(WebMap, MapView, FeatureLayer, Legend, ScaleBar, Expand) {
+            
+            // Load Web Map from ArcGIS Online
+            const webmap = new WebMap({
+                portalItem: {
+                    id: "9fbc757c6ceb4ea4b39b96ffc47b4ea9"
+                }
+            });
+            
+            // Create MapView
+            const view = new MapView({
+                container: "viewDiv",
+                map: webmap,
+                constraints: {
+                    minZoom: 9,
+                    maxZoom: 17
+                }
+            });
+            
+            let interpretationLayer = null;
+            let highlightHandle = null;
+            let allPoints = [];
+            let currentPointIndex = 0;
+            
+            // Photo URL mapping
+            const photoFilenames = {
+                1: "LP_01_Miklavski_potok.jpg",
+                2: "LP_02_Duplek.jpg",
+                3: "LP_03_Vurberg.jpg",
+                4: "LP_04_Zlatolicje.jpg",
+                5: "LP_05_Hajdina.jpg",
+                6: "LP_06_Ptuj.jpg",
+                7: "LP_07_Izliv_Pesnice.jpg",
+                8: "LP_08_Muretinci.jpg",
+                9: "LP_09_Ormoske_lagune.jpg",
+                10: "LP_10_Ormoske_lagune_area.jpg",
+                11: "LP_11_Sredisce_ob_Dravi.jpg",
+                12: "LP_12_Sredisce_ob_Dravi_area.jpg",
+                13: "LP_13_Limbusko_nabrezje.jpg"
+            };
+            
+            view.when(function() {
+                document.getElementById("loading").style.display = "none";
+                
+                // Find interpretation layer
+                webmap.layers.forEach(function(layer) {
+                    if (layer.title && layer.title.toLowerCase().includes("interpretation")) {
+                        interpretationLayer = layer;
+                    }
+                });
+                
+                // Load all points
+                if (interpretationLayer) {
+                    loadPoints();
+                }
+                
+                // Add Legend widget
+                const legend = new Legend({
+                    view: view,
+                    style: "card"
+                });
+                
+                const legendExpand = new Expand({
+                    view: view,
+                    content: legend,
+                    expanded: false,
+                    expandIconClass: "esri-icon-layer-list",
+                    expandTooltip: "Legend"
+                });
+                view.ui.add(legendExpand, "top-right");
+                
+                // Add ScaleBar widget
+                const scaleBar = new ScaleBar({
+                    view: view,
+                    unit: "metric"
+                });
+                view.ui.add(scaleBar, "bottom-left");
+            });
+            
+            // Click on map to select point
+            view.on("click", function(event) {
+                view.hitTest(event).then(function(response) {
+                    if (response.results.length > 0) {
+                        const graphic = response.results[0].graphic;
+                        
+                        if (graphic.layer === interpretationLayer) {
+                            const clickedFid = graphic.attributes.FID || graphic.attributes.fid || graphic.attributes.OBJECTID;
+                            
+                            const pointIndex = allPoints.findIndex(function(feature) {
+                                const fid = feature.attributes.FID || feature.attributes.fid || feature.attributes.OBJECTID;
+                                return fid === clickedFid;
+                            });
+                            
+                            if (pointIndex !== -1) {
+                                selectPoint(pointIndex);
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Change cursor on hover
+            view.on("pointer-move", function(event) {
+                view.hitTest(event).then(function(response) {
+                    if (response.results.length > 0) {
+                        const graphic = response.results[0].graphic;
+                        if (graphic.layer === interpretationLayer) {
+                            view.container.style.cursor = "pointer";
+                        } else {
+                            view.container.style.cursor = "default";
+                        }
+                    } else {
+                        view.container.style.cursor = "default";
+                    }
+                });
+            });
+            
+            function loadPoints() {
+                const query = interpretationLayer.createQuery();
+                query.where = "1=1";
+                query.outFields = ["*"];
+                query.orderByFields = ["FID ASC"];
+                
+                interpretationLayer.queryFeatures(query).then(function(result) {
+                    allPoints = result.features;
+                    
+                    // Populate sidebar
+                    const listContainer = document.getElementById("pointsList");
+                    listContainer.innerHTML = "";
+                    
+                    allPoints.forEach(function(feature, index) {
+                        const attrs = feature.attributes;
+                        const div = document.createElement("div");
+                        div.className = "point-item";
+                        div.dataset.index = index;
+                        
+                        const fid = attrs.FID || attrs.fid;
+                        const pointName = attrs.Point || attrs.point || `Point ${fid}`;
+                        
+                        div.innerHTML = `
+                            <span class="point-number">Point ${fid}</span>
+                            ${pointName}
+                        `;
+                        
+                        div.onclick = function() {
+                            selectPoint(index);
+                        };
+                        
+                        listContainer.appendChild(div);
+                    });
+                    
+                    // Auto-select first point
+                    if (allPoints.length > 0) {
+                        selectPoint(0);
+                    }
+                });
+            }
+            
+            function selectPoint(index) {
+                if (index < 0 || index >= allPoints.length) return;
+                
+                currentPointIndex = index;
+                const feature = allPoints[index];
+                const attrs = feature.attributes;
+                
+                // Update sidebar selection
+                document.querySelectorAll('.point-item').forEach(function(item, i) {
+                    if (i === index) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update navigation buttons
+                document.getElementById('prevBtn').disabled = (index === 0);
+                document.getElementById('nextBtn').disabled = (index === allPoints.length - 1);
+                
+                // Show side panel
+                showSidePanel(attrs);
+                
+                // Remove previous highlight
+                if (highlightHandle) {
+                    highlightHandle.remove();
+                }
+                
+                // Highlight selected feature
+                view.whenLayerView(interpretationLayer).then(function(layerView) {
+                    highlightHandle = layerView.highlight(feature);
+                });
+                
+                // Zoom to point
+                view.goTo({
+                    target: feature.geometry,
+                    zoom: 12
+                }, {
+                    duration: 1000
+                });
+            }
+            
+            function showSidePanel(attributes) {
+                const panel = document.getElementById("sidePanel");
+                const badge = document.getElementById("typeBadge");
+                const name = document.getElementById("locationName");
+                const image = document.getElementById("locationImage");
+                const description = document.getElementById("locationDescription");
+                
+                // Get FID
+                const fid = attributes.FID || attributes.fid;
+                
+                // Type badge
+                const type = attributes.Type || attributes.type || 1;
+                badge.className = "type-badge type-" + type;
+                const typeNames = {
+                    1: "Interpretation Center",
+                    2: "Interpretation Polygon",
+                    3: "Interpretation Point"
+                };
+                badge.textContent = typeNames[type] || "Learning Point";
+                
+                // Location name
+                name.textContent = attributes.Point || attributes.point || "Location";
+                
+                // Image URL
+                const photoFilename = photoFilenames[fid];
+                if (photoFilename) {
+                    image.src = `https://cyclingwaterways.github.io/drava-storymap/${photoFilename}`;
+                    image.alt = attributes.Point || "Location photo";
+                } else {
+                    image.src = "https://via.placeholder.com/400x250?text=No+Image";
+                }
+                
+                // Description
+                description.textContent = attributes.description || "No description available.";
+                
+                // Show panel
+                panel.classList.add("visible");
+            }
+            
+            window.navigatePrevious = function() {
+                if (currentPointIndex > 0) {
+                    selectPoint(currentPointIndex - 1);
+                }
+            };
+            
+            window.navigateNext = function() {
+                if (currentPointIndex < allPoints.length - 1) {
+                    selectPoint(currentPointIndex + 1);
+                }
+            };
+            
+            window.closePanel = function() {
+                const panel = document.getElementById("sidePanel");
+                panel.classList.remove("visible");
+                
+                // Remove highlight
+                if (highlightHandle) {
+                    highlightHandle.remove();
+                    highlightHandle = null;
+                }
+                
+                // Deselect in sidebar
+                document.querySelectorAll('.point-item').forEach(function(item) {
+                    item.classList.remove('active');
+                });
+                
+                // Zoom out to show all
+                if (interpretationLayer) {
+                    const query = interpretationLayer.createQuery();
+                    query.where = "1=1";
+                    interpretationLayer.queryExtent(query).then(function(result) {
+                        if (result.extent) {
+                            view.goTo(result.extent.expand(1.1));
+                        }
+                    });
+                }
+            };
+            
+            window.toggleSidebar = function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('open');
+            };
+        });
+    </script>
+</body>
+</html>
