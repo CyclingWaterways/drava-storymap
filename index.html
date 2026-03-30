@@ -492,6 +492,10 @@
         let currentLanguage = 'en';
         let pointTranslations = null;
         
+        // Global variables for map state
+        let allPoints = [];
+        let currentPointIndex = 0;
+        
         // Load translations JSON from GitHub
         fetch('https://cyclingwaterways.github.io/slovenia-drava/translations-dravabike.json')
             .then(response => {
@@ -586,8 +590,12 @@
                 const panel = document.getElementById("sidePanel");
                 if (panel && panel.classList.contains('visible') && allPoints[currentPointIndex]) {
                     const feature = allPoints[currentPointIndex];
-                    showSidePanel(feature.attributes);
-                    showPointTooltip(feature, feature.attributes);
+                    if (window.showSidePanel) {
+                        window.showSidePanel(feature.attributes);
+                    }
+                    if (window.showPointTooltip) {
+                        window.showPointTooltip(feature, feature.attributes);
+                    }
                 }
             }
             
@@ -633,8 +641,6 @@
             
             let interpretationLayer = null;
             let highlightHandle = null;
-            let allPoints = [];
-            let currentPointIndex = 0;
             let tooltipLayer = null;
             
             // Photo URL mapping
@@ -824,7 +830,7 @@
                 });
             }
             
-            function showPointTooltip(feature, attributes) {
+            window.showPointTooltip = function(feature, attributes) {
                 // Clear existing tooltip
                 tooltipLayer.removeAll();
                 
@@ -857,7 +863,7 @@
                 tooltipLayer.add(tooltipGraphic);
             }
             
-            function showSidePanel(attributes) {
+            window.showSidePanel = function(attributes) {
                 const panel = document.getElementById("sidePanel");
                 const badge = document.getElementById("typeBadge");
                 const name = document.getElementById("locationName");
