@@ -830,7 +830,7 @@
                 });
             }
             
-            window.showPointTooltip = function(feature, attributes) {
+            function showPointTooltip(feature, attributes) {
                 // Clear existing tooltip
                 tooltipLayer.removeAll();
                 
@@ -863,7 +863,10 @@
                 tooltipLayer.add(tooltipGraphic);
             }
             
-            window.showSidePanel = function(attributes) {
+            // Make showPointTooltip globally accessible
+            window.showPointTooltip = showPointTooltip;
+            
+            function showSidePanel(attributes) {
                 const panel = document.getElementById("sidePanel");
                 const badge = document.getElementById("typeBadge");
                 const name = document.getElementById("locationName");
@@ -906,6 +909,9 @@
                 // Show panel
                 panel.classList.add("visible");
             }
+            
+            // Make showSidePanel globally accessible
+            window.showSidePanel = showSidePanel;
             
             window.navigatePrevious = function() {
                 if (currentPointIndex > 0) {
