@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DravaBike - Cycling Through Nature</title>
     
     <!-- ArcGIS Maps SDK for JavaScript -->
@@ -371,6 +371,16 @@
                 height: 17px;
             }
             
+            #sidebar {
+                /* Ensure nav buttons are always visible on mobile */
+                padding-bottom: env(safe-area-inset-bottom, 20px);
+            }
+            
+            .nav-buttons {
+                /* Extra padding on mobile to keep above browser chrome */
+                padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px)) 12px;
+            }
+            
             #header h1 {
                 font-size: 18px;
             }
@@ -568,14 +578,15 @@
                     }
                     div.dataset.index = index;
                     
-                    const fid = attrs.FID || attrs.fid;
-                    const pointName = attrs.Point || attrs.point || `Point ${fid}`;
+                    // Use id field for point number
+                    const pointId = attrs.id || attrs.FID || attrs.fid;
+                    const pointName = attrs.Point || attrs.point || `Point ${pointId}`;
                     
                     // Get translated name from JSON
-                    const translatedName = getTranslatedPoint(fid, 'name') || pointName;
+                    const translatedName = getTranslatedPoint(pointId, 'name') || pointName;
                     
                     div.innerHTML = `
-                        <span class="point-number">Point ${fid}</span>
+                        <span class="point-number">Point ${pointId}</span>
                         ${translatedName}
                     `;
                     
@@ -744,7 +755,7 @@
                 const query = interpretationLayer.createQuery();
                 query.where = "1=1";
                 query.outFields = ["*"];
-                query.orderByFields = ["FID ASC"];
+                query.orderByFields = ["id ASC"];
                 
                 interpretationLayer.queryFeatures(query).then(function(result) {
                     allPoints = result.features;
@@ -759,14 +770,15 @@
                         div.className = "point-item";
                         div.dataset.index = index;
                         
-                        const fid = attrs.FID || attrs.fid;
-                        const pointName = attrs.Point || attrs.point || `Point ${fid}`;
+                        // Use id field for point number
+                        const pointId = attrs.id || attrs.FID || attrs.fid;
+                        const pointName = attrs.Point || attrs.point || `Point ${pointId}`;
                         
                         // Get translated name from JSON
-                        const translatedName = getTranslatedPoint(fid, 'name') || pointName;
+                        const translatedName = getTranslatedPoint(pointId, 'name') || pointName;
                         
                         div.innerHTML = `
-                            <span class="point-number">Point ${fid}</span>
+                            <span class="point-number">Point ${pointId}</span>
                             ${translatedName}
                         `;
                         
@@ -835,9 +847,9 @@
                 tooltipLayer.removeAll();
                 
                 // Get point name (translated from JSON)
-                const fid = attributes.FID || attributes.fid;
+                const pointId = attributes.id || attributes.FID || attributes.fid;
                 const pointName = attributes.Point || attributes.point || "Location";
-                const translatedName = getTranslatedPoint(fid, 'name') || pointName;
+                const translatedName = getTranslatedPoint(pointId, 'name') || pointName;
                 
                 // Create text symbol for tooltip
                 const textSymbol = {
@@ -873,8 +885,8 @@
                 const image = document.getElementById("locationImage");
                 const description = document.getElementById("locationDescription");
                 
-                // Get FID
-                const fid = attributes.FID || attributes.fid;
+                // Get point ID
+                const pointId = attributes.id || attributes.FID || attributes.fid;
                 
                 // Type badge (translated)
                 const type = attributes.Type || attributes.type || 1;
@@ -889,11 +901,11 @@
                 
                 // Location name (translated from JSON)
                 const pointName = attributes.Point || attributes.point || "Location";
-                const translatedName = getTranslatedPoint(fid, 'name') || pointName;
+                const translatedName = getTranslatedPoint(pointId, 'name') || pointName;
                 name.textContent = translatedName;
                 
                 // Image URL
-                const photoFilename = photoFilenames[fid];
+                const photoFilename = photoFilenames[pointId];
                 if (photoFilename) {
                     image.src = `https://cyclingwaterways.github.io/slovenia-drava/${photoFilename}`;
                     image.alt = translatedName;
@@ -903,7 +915,7 @@
                 
                 // Description (translated from JSON)
                 const originalDescription = attributes.description || "No description available.";
-                const translatedDescription = getTranslatedPoint(fid, 'description') || originalDescription;
+                const translatedDescription = getTranslatedPoint(pointId, 'description') || originalDescription;
                 description.textContent = translatedDescription;
                 
                 // Show panel
