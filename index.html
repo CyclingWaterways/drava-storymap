@@ -243,22 +243,37 @@
         }
         
         .toggle-panel-button {
-            background: #3b82f6;
-            color: white;
+            display: none; /* Hidden on desktop */
+            background: transparent;
+            color: transparent;
             border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0;
             line-height: 1;
             transition: all 0.2s;
-            margin-right: 8px;
+            padding: 0;
+            position: absolute;
+            top: 8px;
+            right: 8px;
         }
         
-        .toggle-panel-button:hover {
-            background: #2563eb;
-            transform: scale(1.05);
+        /* Triangle shape */
+        .toggle-panel-button::before {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            /* Triangle pointing RIGHT when panel open (close action) */
+            border-width: 6px 0 6px 8px;
+            border-color: transparent transparent transparent #475569;
+            margin: 6px auto;
+        }
+        
+        .toggle-panel-button:hover::before {
+            border-color: transparent transparent transparent #1e293b;
         }
         
         /* When panel is minimized */
@@ -509,13 +524,12 @@
                 .close-button {
                     display: none;
                 }
-            }
-            
-            .toggle-panel-button {
-                width: 26px;
-                height: 26px;
-                font-size: 12px;
-                margin-right: 4px;
+                
+                .toggle-panel-button {
+                    display: block; /* Show triangle on mobile */
+                    top: 6px;
+                    right: 6px;
+                }
             }
             
             /* Minimized panel on mobile - very slim */
@@ -628,7 +642,7 @@
             <div class="panel-header">
                 <span class="type-badge" id="typeBadge">Type</span>
                 <h2 id="locationName">Location Name</h2>
-                <button class="toggle-panel-button" onclick="togglePanel()" title="Hide/Show panel">◀</button>
+                <button class="toggle-panel-button" onclick="togglePanel()" title="Hide/Show panel"></button>
                 <button class="close-button" onclick="closePanel()">×</button>
             </div>
             <img id="locationImage" class="panel-image" src="" alt="Location">
