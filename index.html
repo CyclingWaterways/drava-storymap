@@ -242,6 +242,40 @@
             transform: scale(1.05);
         }
         
+        .toggle-panel-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+        
+        .toggle-panel-button:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+        
+        /* When panel is minimized */
+        .side-panel.minimized .panel-image,
+        .side-panel.minimized .panel-content {
+            display: none;
+        }
+        
+        .side-panel.minimized {
+            width: 60px;
+        }
+        
+        .side-panel.minimized .panel-header h2,
+        .side-panel.minimized .type-badge {
+            display: none;
+        }
+        
         .panel-image {
             width: 100%;
             height: 250px;
@@ -416,15 +450,6 @@
                 font-size: 11px;
             }
             
-            /* Reduce map width when panel is open */
-            #main-container {
-                transition: margin-right 0.3s;
-            }
-            
-            body.panel-open #main-container {
-                margin-right: 280px; /* Push entire container left */
-            }
-            
             .side-panel {
                 position: fixed;
                 right: -280px; /* Hidden off-screen to right */
@@ -477,6 +502,25 @@
                 width: 26px;
                 height: 26px;
                 font-size: 18px;
+            }
+            
+            /* Hide close button on mobile - use Prev/Next instead */
+            @media (max-width: 768px) {
+                .close-button {
+                    display: none;
+                }
+            }
+            
+            .toggle-panel-button {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+                margin-right: 4px;
+            }
+            
+            /* Minimized panel on mobile - very slim */
+            .side-panel.minimized {
+                width: 50px;
             }
             
             /* Make buttons horizontal on mobile */
@@ -584,6 +628,7 @@
             <div class="panel-header">
                 <span class="type-badge" id="typeBadge">Type</span>
                 <h2 id="locationName">Location Name</h2>
+                <button class="toggle-panel-button" onclick="togglePanel()" title="Hide/Show panel">◀</button>
                 <button class="close-button" onclick="closePanel()">×</button>
             </div>
             <img id="locationImage" class="panel-image" src="" alt="Location">
@@ -1043,31 +1088,6 @@
                 
                 // Show panel
                 panel.classList.add("visible");
-                
-                // On mobile, adjust sidebar and map width when panel is visible
-                document.body.classList.add("panel-open");
-                
-                // On mobile, tell ArcGIS to consider panel as unusable area
-                if (window.innerWidth <= 768 && allPoints[currentPointIndex]) {
-                    const feature = allPoints[currentPointIndex];
-                    
-                    // Set padding to tell ArcGIS: "280px on right is blocked"
-                    view.padding = {
-                        left: 0,
-                        top: 0,
-                        right: 280,
-                        bottom: 60
-                    };
-                    
-                    // Wait a bit then re-center
-                    setTimeout(function() {
-                        view.goTo({
-                            target: feature.geometry
-                        }, {
-                            duration: 400
-                        });
-                    }, 100);
-                }
             }
             
             // Make showSidePanel globally accessible
@@ -1088,19 +1108,7 @@
             window.closePanel = function() {
                 const panel = document.getElementById("sidePanel");
                 panel.classList.remove("visible");
-                
-                // Remove panel-open class from body
-                document.body.classList.remove("panel-open");
-                
-                // On mobile, reset view padding
-                if (window.innerWidth <= 768) {
-                    view.padding = {
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 60
-                    };
-                }
+                panel.classList.remove("minimized");
                 
                 // Remove tooltip
                 if (tooltipLayer) {
@@ -1127,6 +1135,23 @@
                             view.goTo(result.extent.expand(1.1));
                         }
                     });
+                }
+            };
+            
+            window.togglePanel = function() {
+                const panel = document.getElementById("sidePanel");
+                const toggleBtn = document.querySelector(".toggle-panel-button");
+                
+                if (panel.classList.contains("minimized")) {
+                    // Expand panel
+                    panel.classList.remove("minimized");
+                    toggleBtn.textContent = "◀";
+                    toggleBtn.title = "Hide panel";
+                } else {
+                    // Minimize panel
+                    panel.classList.add("minimized");
+                    toggleBtn.textContent = "▶";
+                    toggleBtn.title = "Show panel";
                 }
             };
             
