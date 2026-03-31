@@ -417,13 +417,12 @@
             }
             
             /* Reduce map width when panel is open */
-            #viewDiv {
-                width: 100%;
-                transition: width 0.3s;
+            #main-container {
+                transition: margin-right 0.3s;
             }
             
-            body.panel-open #viewDiv {
-                width: calc(100% - 280px); /* Explicit width change */
+            body.panel-open #main-container {
+                margin-right: 280px; /* Push entire container left */
             }
             
             .side-panel {
