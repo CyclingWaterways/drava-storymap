@@ -301,6 +301,13 @@
             display: none;
         }
         
+        /* Uniform white background when minimized */
+        .side-panel.minimized .panel-header {
+            background: white;
+            border-bottom: none;
+            padding: 0;
+        }
+        
         .panel-image {
             width: 100%;
             height: 250px;
@@ -451,6 +458,15 @@
                 padding-bottom: env(safe-area-inset-bottom, 0px);
                 z-index: 1000;
                 transition: right 0.3s;
+            }
+            
+            /* Make main container fill entire height */
+            #main-container {
+                height: calc(100vh - 60px); /* Full height minus header */
+            }
+            
+            #viewDiv {
+                height: 100%;
             }
             
             /* When panel is open, sidebar stops before it */
