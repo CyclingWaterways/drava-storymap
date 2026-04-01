@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+    <!-- Background -->
+    <rect width="600" height="400" fill="#3b82f6"/>
+    
+    <!-- Icon -->
+    
+            <g opacity="0.35">
+                <path d="M 300 125 C 285 125 273 137 273 152 C 273 167 285 182 300 210 C 315 182 327 167 327 152 C 327 137 315 125 300 125 Z" 
+                      fill="none" stroke="white" stroke-width="5"/>
+                <circle cx="300" cy="152" r="15" fill="white"/>
+            </g>
+        
+    
+    <!-- Location name -->
+    <text x="300" y="270" 
+          font-family="Arial, sans-serif" 
+          font-size="32" 
+          font-weight="bold" 
+          fill="#ffffff" 
+          text-anchor="middle">Vurberg</text>
+    
+    <!-- Type label -->
+    <text x="300" y="310" 
+          font-family="Arial, sans-serif" 
+          font-size="20" 
+          font-weight="normal" 
+          fill="#ffffff" 
+          text-anchor="middle" 
+          opacity="0.85">Point</text>
+    
+    <!-- PLACEHOLDER text -->
+    <text x="300" y="350" 
+          font-family="Arial, sans-serif" 
+          font-size="16" 
+          font-weight="normal" 
+          fill="#ffffff" 
+          text-anchor="middle" 
+          opacity="0.6">PLACEHOLDER</text>
+</svg>

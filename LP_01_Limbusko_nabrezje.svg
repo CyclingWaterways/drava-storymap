@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+    <!-- Background -->
+    <rect width="600" height="400" fill="#f59e0b"/>
+    
+    <!-- Icon -->
+    
+            <g opacity="0.35">
+                <path d="M 300 120 L 345 145 L 345 195 L 300 220 L 255 195 L 255 145 Z" 
+                      fill="none" stroke="white" stroke-width="5"/>
+                <path d="M 300 140 L 330 155 L 330 185 L 300 200 L 270 185 L 270 155 Z" 
+                      fill="white" opacity="0.4"/>
+            </g>
+        
+    
+    <!-- Location name -->
+    <text x="300" y="270" 
+          font-family="Arial, sans-serif" 
+          font-size="32" 
+          font-weight="bold" 
+          fill="#ffffff" 
+          text-anchor="middle">Limbuško nabrežje</text>
+    
+    <!-- Type label -->
+    <text x="300" y="310" 
+          font-family="Arial, sans-serif" 
+          font-size="20" 
+          font-weight="normal" 
+          fill="#ffffff" 
+          text-anchor="middle" 
+          opacity="0.85">Polygon</text>
+    
+    <!-- PLACEHOLDER text -->
+    <text x="300" y="350" 
+          font-family="Arial, sans-serif" 
+          font-size="16" 
+          font-weight="normal" 
+          fill="#ffffff" 
+          text-anchor="middle" 
+          opacity="0.6">PLACEHOLDER</text>
+</svg>
