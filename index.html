@@ -243,47 +243,7 @@
         }
         
         .toggle-panel-button {
-            display: none; /* Hidden on desktop */
-            background: transparent;
-            color: transparent;
-            border: none;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            font-size: 0;
-            line-height: 1;
-            transition: all 0.2s;
-            padding: 0;
-            position: absolute;
-            top: 8px;
-            right: 8px;
-        }
-        
-        /* Triangle shape */
-        .toggle-panel-button::before {
-            content: '';
-            display: block;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            /* Triangle pointing RIGHT when panel open (close action) */
-            border-width: 6px 0 6px 8px;
-            border-color: transparent transparent transparent #475569;
-            margin: 6px auto;
-        }
-        
-        /* Triangle pointing LEFT when panel minimized (open action) */
-        .side-panel.minimized .toggle-panel-button::before {
-            border-width: 6px 8px 6px 0;
-            border-color: transparent #475569 transparent transparent;
-        }
-        
-        .toggle-panel-button:hover::before {
-            border-color: transparent transparent transparent #1e293b;
-        }
-        
-        .side-panel.minimized .toggle-panel-button:hover::before {
-            border-color: transparent #1e293b transparent transparent;
+            display: none; /* Not needed - use hamburger instead */
         }
         
         /* When panel is minimized */
@@ -426,11 +386,12 @@
         }
         
         @media (max-width: 768px) {
-            /* Show hamburger menu on mobile - for panel toggle */
+            /* Show hamburger menu on mobile - ON THE MAP, top-right */
             #menuToggle {
                 display: block;
-                top: 12px;
-                left: 12px;
+                top: 70px; /* Sotto l'header */
+                right: 12px; /* A destra per non coprire zoom */
+                left: auto;
             }
             
             .language-selector {
@@ -560,9 +521,10 @@
                 }
             }
             
-            /* Minimized panel on mobile - very slim */
+            /* Minimized panel on mobile - completely hidden */
             .side-panel.minimized {
-                width: 40px; /* Just enough for triangle */
+                width: 0px; /* Completely hidden */
+                overflow: hidden;
             }
             
             /* Adjust main-container when panel is expanded */
@@ -579,14 +541,14 @@
                 right: 280px; /* Stop before expanded panel */
             }
             
-            /* Adjust main-container when panel is minimized */
+            /* Adjust main-container when panel is minimized (hidden) */
             body:not(.panel-expanded) #main-container {
-                margin-right: 40px; /* Small space for minimized panel */
+                margin-right: 0px; /* No space needed */
             }
             
-            /* Adjust sidebar when panel is minimized */
+            /* Adjust sidebar when panel is minimized (hidden) */
             body:not(.panel-expanded) #sidebar {
-                right: 40px; /* Stop before minimized panel */
+                right: 0px; /* Full width */
             }
             
             /* Make buttons horizontal on mobile */
