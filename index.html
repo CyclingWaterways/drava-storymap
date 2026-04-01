@@ -1040,8 +1040,9 @@
                 });
                 
                 // Update navigation buttons
-                document.getElementById('prevBtn').disabled = (index === 0);
-                document.getElementById('nextBtn').disabled = (index === allPoints.length - 1);
+                // Buttons always enabled (circular navigation)
+                document.getElementById('prevBtn').disabled = false;
+                document.getElementById('nextBtn').disabled = false;
                 
                 // Show side panel
                 showSidePanel(attrs);
@@ -1154,12 +1155,18 @@
             window.navigatePrevious = function() {
                 if (currentPointIndex > 0) {
                     selectPoint(currentPointIndex - 1);
+                } else {
+                    // Loop: dal primo all'ultimo
+                    selectPoint(allPoints.length - 1);
                 }
             };
             
             window.navigateNext = function() {
                 if (currentPointIndex < allPoints.length - 1) {
                     selectPoint(currentPointIndex + 1);
+                } else {
+                    // Loop: dall'ultimo al primo
+                    selectPoint(0);
                 }
             };
             
