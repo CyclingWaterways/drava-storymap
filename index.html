@@ -426,9 +426,11 @@
         }
         
         @media (max-width: 768px) {
-            /* Hide hamburger menu on mobile - not needed */
+            /* Show hamburger menu on mobile - for panel toggle */
             #menuToggle {
-                display: none !important;
+                display: block;
+                top: 12px;
+                left: 12px;
             }
             
             .language-selector {
@@ -564,25 +566,26 @@
             }
             
             /* Adjust main-container when panel is expanded */
-            .side-panel:not(.minimized) {
+            .side-panel:not(.minimized),
+            body.panel-expanded .side-panel {
                 width: 280px;
             }
             
-            .side-panel:not(.minimized) ~ #main-container {
+            body.panel-expanded #main-container {
                 margin-right: 280px; /* Make space for expanded panel */
             }
             
-            .side-panel:not(.minimized) ~ * #sidebar {
+            body.panel-expanded #sidebar {
                 right: 280px; /* Stop before expanded panel */
             }
             
             /* Adjust main-container when panel is minimized */
-            .side-panel.minimized ~ #main-container {
+            body:not(.panel-expanded) #main-container {
                 margin-right: 40px; /* Small space for minimized panel */
             }
             
             /* Adjust sidebar when panel is minimized */
-            .side-panel.minimized ~ * #sidebar {
+            body:not(.panel-expanded) #sidebar {
                 right: 40px; /* Stop before minimized panel */
             }
             
@@ -666,7 +669,7 @@
     </div>
     
     <!-- Mobile menu toggle -->
-    <button id="menuToggle" onclick="toggleSidebar()">☰</button>
+    <button id="menuToggle" onclick="togglePanel()">☰</button>
     
     <!-- Main container -->
     <div id="main-container">
@@ -1224,11 +1227,13 @@
                 if (panel.classList.contains("minimized")) {
                     // Expand panel - show only arrows
                     panel.classList.remove("minimized");
+                    document.body.classList.add("panel-expanded");
                     if (prevBtn) prevBtn.textContent = "←";
                     if (nextBtn) nextBtn.textContent = "→";
                 } else {
                     // Minimize panel - show arrows + text
                     panel.classList.add("minimized");
+                    document.body.classList.remove("panel-expanded");
                     const t = translations[currentLanguage];
                     if (prevBtn) prevBtn.textContent = t.prev;
                     if (nextBtn) nextBtn.textContent = t.next;
