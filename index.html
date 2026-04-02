@@ -343,14 +343,15 @@
             display: flex;
             flex-direction: column;
             z-index: 950;
-            transform: translateX(100%);
-            transition: transform var(--transition-smooth);
             flex-shrink: 0;
             overflow: hidden;
+            /* Hidden by default: pulled out of view via negative margin */
+            margin-right: calc(-1 * var(--panel-width));
+            transition: margin-right var(--transition-smooth);
         }
 
         .side-panel.visible {
-            transform: translateX(0);
+            margin-right: 0;
         }
 
         /* Close button */
@@ -649,7 +650,9 @@
                 bottom: 0;
                 width: 300px;
                 max-width: 80vw;
+                margin-right: 0;
                 transform: translateX(100%);
+                transition: transform var(--transition-smooth);
                 border-radius: 0;
                 box-shadow: -4px 0 24px rgba(0,0,0,0.15);
                 z-index: 970;
@@ -657,6 +660,7 @@
 
             .side-panel.visible {
                 transform: translateX(0);
+                margin-right: 0;
             }
 
             /* Hide drag handle on mobile — not a bottom sheet anymore */
@@ -1071,16 +1075,11 @@
     function updateMapPadding(panelOpen) {
         if (!window.mapView) return;
         if (panelOpen && window.innerWidth <= 768) {
-            // Mobile: panel is 300px or 80vw from right
+            // Mobile: panel is a fixed overlay on the right
             const panelW = Math.min(300, window.innerWidth * 0.8);
             window.mapView.padding = { right: panelW, top: 0, bottom: 0, left: 0 };
-        } else if (panelOpen && window.innerWidth <= 1024) {
-            // Tablet: panel is 360px
-            window.mapView.padding = { right: 360, top: 0, bottom: 0, left: 0 };
-        } else if (panelOpen) {
-            // Desktop: panel is 420px, sidebar 280px visible
-            window.mapView.padding = { right: 420, top: 0, bottom: 0, left: 0 };
         } else {
+            // Desktop & tablet: panel is in flex flow, map resizes automatically
             window.mapView.padding = { right: 0, top: 0, bottom: 0, left: 0 };
         }
     }
